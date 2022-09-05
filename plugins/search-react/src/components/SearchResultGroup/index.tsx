@@ -15,13 +15,16 @@
  */
 
 export {
-  SearchContextProvider,
-  useSearch,
-  useSearchContextCheck,
-} from './SearchContext';
+  SearchResultGroup,
+  SearchResultGroupLayout,
+  SearchResultGroupTextFilterField,
+  SearchResultGroupSelectFilterField,
+  SearchResultGroupFilterFieldLayout,
+} from './SearchResultGroup';
 
 export type {
-  SearchContextProviderProps,
-  SearchContextState,
-  SearchContextValue,
-} from './SearchContext';
+  SearchResultGroupProps,
+  SearchResultGroupLayoutProps,
+  SearchResultGroupFilterFieldProps,
+  SearchResultGroupFilterFieldLayoutProps,
+} from './SearchResultGroup';

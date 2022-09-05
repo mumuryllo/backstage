@@ -15,7 +15,7 @@
  */
 
 import { JsonObject } from '@backstage/types';
-import { useApi, AnalyticsContext } from '@backstage/core-plugin-api';
+import { AnalyticsContext } from '@backstage/core-plugin-api';
 import { SearchResultSet } from '@backstage/plugin-search-common';
 import {
   createVersionedContext,
@@ -26,11 +26,12 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
-import useAsync, { AsyncState } from 'react-use/lib/useAsync';
+import { AsyncState } from 'react-use/lib/useAsync';
 import usePrevious from 'react-use/lib/usePrevious';
-import { searchApiRef } from '../api';
+import { useSearchResults } from '../api';
 
 /**
  *
@@ -103,26 +104,26 @@ const searchInitialState: SearchContextState = {
 const useSearchContextValue = (
   initialValue: SearchContextState = searchInitialState,
 ) => {
-  const searchApi = useApi(searchApiRef);
+  const [term, setTerm] = useState<string>(initialValue.term);
+  const [types, setTypes] = useState<string[]>(initialValue.types);
+  const [filters, setFilters] = useState<JsonObject>(initialValue.filters);
   const [pageCursor, setPageCursor] = useState<string | undefined>(
     initialValue.pageCursor,
   );
-  const [filters, setFilters] = useState<JsonObject>(initialValue.filters);
-  const [term, setTerm] = useState<string>(initialValue.term);
-  const [types, setTypes] = useState<string[]>(initialValue.types);
 
   const prevTerm = usePrevious(term);
 
-  const result = useAsync(
-    () =>
-      searchApi.query({
-        term,
-        filters,
-        pageCursor,
-        types,
-      }),
-    [term, filters, types, pageCursor],
+  const query = useMemo(
+    () => ({
+      term,
+      filters,
+      pageCursor,
+      types,
+    }),
+    [term, filters, pageCursor, types],
   );
+
+  const result = useSearchResults(query);
 
   const hasNextPage =
     !result.loading && !result.error && result.value?.nextPageCursor;
