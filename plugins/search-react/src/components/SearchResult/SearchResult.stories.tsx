@@ -15,16 +15,21 @@
  */
 
 import React, { ComponentType } from 'react';
-import { List, ListItem } from '@material-ui/core';
 import { MemoryRouter } from 'react-router';
+
+import { List, ListItem } from '@material-ui/core';
+import DefaultIcon from '@material-ui/icons/InsertDriveFile';
+import CustomIcon from '@material-ui/icons/NoteAdd';
 
 import { Link } from '@backstage/core-components';
 import { TestApiProvider } from '@backstage/test-utils';
 
 import { searchApiRef, MockSearchApi } from '../../api';
 import { SearchContextProvider } from '../../context';
+
 import { DefaultResultListItem } from '../DefaultResultListItem';
 import { SearchResult } from './SearchResult';
+import { SearchResultGroupLayout } from '../SearchResultGroup';
 
 const mockResults = {
   results: [
@@ -73,7 +78,7 @@ export default {
   ],
 };
 
-export const Default = () => {
+export const ListLayout = () => {
   return (
     <SearchResult>
       {({ results }) => (
@@ -82,22 +87,60 @@ export const Default = () => {
             switch (type) {
               case 'custom-result-item':
                 return (
-                  <DefaultResultListItem
-                    key={document.location}
-                    result={document}
-                  />
-                );
-              default:
-                return (
                   <ListItem>
                     <Link to={document.location}>
                       {document.title} - {document.text}
                     </Link>
                   </ListItem>
                 );
+              default:
+                return (
+                  <DefaultResultListItem
+                    key={document.location}
+                    result={document}
+                  />
+                );
             }
           })}
         </List>
+      )}
+    </SearchResult>
+  );
+};
+
+export const GroupLayout = () => {
+  return (
+    <SearchResult>
+      {({ results }) => (
+        <>
+          <SearchResultGroupLayout
+            icon={<CustomIcon />}
+            title="Custom"
+            resultItems={results.filter(
+              ({ type }) => type === 'custom-result-item',
+            )}
+            renderResultItem={({ document }) => (
+              <ListItem>
+                <Link to={document.location}>
+                  {document.title} - {document.text}
+                </Link>
+              </ListItem>
+            )}
+          />
+          <SearchResultGroupLayout
+            icon={<DefaultIcon />}
+            title="Default"
+            resultItems={results.filter(
+              ({ type }) => type !== 'custom-result-item',
+            )}
+            renderResultItem={({ document }) => (
+              <DefaultResultListItem
+                key={document.location}
+                result={document}
+              />
+            )}
+          />
+        </>
       )}
     </SearchResult>
   );

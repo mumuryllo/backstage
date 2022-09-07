@@ -1,5 +1,5 @@
 ---
-'@backstage/plugin-search-react': patch
+'@backstage/plugin-search-react': minor
 ---
 
 Creates a component for querying and rendering search results as a group, see below for an example:
@@ -76,15 +76,16 @@ const CatalogResultsGroup = () => {
       title="Software Catalog"
       link="See all software catalog results"
       filterOptions={filterOptions}
-      renderFilterOption={option => (
-        <MenuItem onClick={handleFilterAdd(option.value)}>
-          {option.label}
+      renderFilterOption={({ label, value }) => (
+        <MenuItem key={value} onClick={handleFilterAdd(value)}>
+          {label}
         </MenuItem>
       )}
       renderFilterField={(key: string) => (
         <>
           {key === 'lifecycle' && (
             <SearchResultGroupSelectFilterField
+              key={key}
               label="Lifecycle"
               value={query.filters?.lifecycle}
               onChange={handleFilterChange('lifecycle')}
@@ -96,6 +97,7 @@ const CatalogResultsGroup = () => {
           )}
           {key === 'owner' && (
             <SearchResultGroupTextFilterField
+              key={key}
               label="Owner"
               value={query.filters?.owner}
               onChange={handleFilterChange('owner')}

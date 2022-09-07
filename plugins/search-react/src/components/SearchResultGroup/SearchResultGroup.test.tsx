@@ -37,7 +37,7 @@ import { MenuItem } from '@material-ui/core';
 const query = jest.fn().mockResolvedValue({ results: [] });
 const searchApiMock = { query };
 
-describe('SearchAutocomplete', () => {
+describe('SearchResultGroup', () => {
   const results = [
     {
       type: 'techdocs',

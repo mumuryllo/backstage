@@ -16,16 +16,21 @@
 
 import React, { ComponentType, useCallback, useState } from 'react';
 
-import { Grid, MenuItem } from '@material-ui/core';
+import {
+  Divider,
+  Grid,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+} from '@material-ui/core';
 import DocsIcon from '@material-ui/icons/InsertDriveFile';
 
 import { TestApiProvider, wrapInTestApp } from '@backstage/test-utils';
 import { JsonValue } from '@backstage/types';
 import { createRouteRef } from '@backstage/core-plugin-api';
+import { CatalogIcon, Link } from '@backstage/core-components';
 import { SearchQuery } from '@backstage/plugin-search-common';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { CatalogSearchResultListItem } from '@backstage/plugin-catalog';
-import { CatalogIcon } from '@backstage/core-components';
 
 import { searchApiRef, MockSearchApi } from '../../api';
 
@@ -106,6 +111,26 @@ export const WithNoResults = () => {
         noResultItemsText="No results found"
       />
     </TestApiProvider>
+  );
+};
+
+// This is a simplified component only used as example, import it from the catalog plugin in production:
+// import { CatalogSearchResultListItem } from '@backstage/plugin-catalog';
+const CatalogSearchResultListItem = (props: any) => {
+  const { icon, result } = props;
+
+  return (
+    <Link to={result.location}>
+      <ListItem alignItems="flex-start">
+        {icon && <ListItemIcon>{icon}</ListItemIcon>}
+        <ListItemText
+          primary={result.title}
+          primaryTypographyProps={{ variant: 'h6' }}
+          secondary={result.text}
+        />
+      </ListItem>
+      <Divider component="li" />
+    </Link>
   );
 };
 

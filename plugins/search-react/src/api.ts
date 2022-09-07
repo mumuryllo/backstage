@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import useAsync from 'react-use/lib/useAsync';
 import { SearchQuery, SearchResultSet } from '@backstage/plugin-search-common';
-import { createApiRef, useApi } from '@backstage/core-plugin-api';
+import { createApiRef } from '@backstage/core-plugin-api';
 
 /**
  * @public
@@ -44,22 +43,3 @@ export class MockSearchApi implements SearchApi {
     return Promise.resolve(this.mockedResults || { results: [] });
   }
 }
-
-/**
- * @public
- * Performs a search query and returns search results.
- * @param query - object containing term, types, filters and pageCursor properties.
- * @returns an async state for the query request, containing error, loading and value properties.
- */
-export const useSearchResults = (query: Partial<SearchQuery>) => {
-  const searchApi = useApi(searchApiRef);
-  return useAsync(() => {
-    const { term = '', types = [], filters = {}, ...rest } = query;
-    return searchApi.query({
-      term,
-      types,
-      filters,
-      ...rest,
-    });
-  }, [query]);
-};

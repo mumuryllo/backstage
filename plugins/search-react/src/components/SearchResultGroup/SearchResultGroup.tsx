@@ -21,6 +21,8 @@ import React, {
   useCallback,
   useState,
 } from 'react';
+import useAsync from 'react-use/lib/useAsync';
+import qs from 'qs';
 
 import {
   makeStyles,
@@ -42,12 +44,11 @@ import ArrowRightIcon from '@material-ui/icons/ArrowForwardIos';
 
 import { JsonValue } from '@backstage/types';
 import { Link, LinkProps } from '@backstage/core-components';
+import { AnalyticsContext, useApi } from '@backstage/core-plugin-api';
 import { SearchQuery, SearchResult } from '@backstage/plugin-search-common';
 
 import { DefaultResultListItem } from '../DefaultResultListItem';
-import { useSearchResults } from '../../api';
-import { AnalyticsContext } from '@backstage/core-plugin-api';
-import qs from 'qs';
+import { searchApiRef } from '../../api';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -166,7 +167,7 @@ export const SearchResultGroupTextFilterField = (
   props: SearchResultGroupFilterFieldProps,
 ) => {
   const classes = useSearchResultGroupTextFilterStyles();
-  const { label, value = 'none', onChange, onDelete } = props;
+  const { label, value = 'None', onChange, onDelete } = props;
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -266,7 +267,7 @@ export type SearchResultGroupLayoutProps<FilterOption> = {
    */
   icon: JSX.Element;
   /**
-   * The results group title, it could be a text or an element.
+   * The results group title content, it could be a text or an element.
    */
   title: ReactNode;
   /**
@@ -274,7 +275,7 @@ export type SearchResultGroupLayoutProps<FilterOption> = {
    */
   titleProps?: Partial<TypographyProps>;
   /**
-   * The results group link, it could be a text or an element.
+   * The results group link content, it could be a text or an element.
    */
   link?: ReactNode;
   /**
@@ -428,14 +429,6 @@ export type SearchResultGroupProps<FilterOption> =
     query: Partial<SearchQuery>;
   };
 
-const useSearchPagePath = (query: Partial<SearchQuery>) => {
-  const { term, ...rest } = query;
-  return `/search?${qs.stringify(
-    { ...rest, query: term },
-    { arrayFormat: 'brackets' },
-  )}`;
-};
-
 /**
  * Given a query, search for results and render them as a group.
  * @param props - see {@link SearchResultGroupProps}.
@@ -444,6 +437,7 @@ const useSearchPagePath = (query: Partial<SearchQuery>) => {
 export function SearchResultGroup<FilterOption>(
   props: SearchResultGroupProps<FilterOption>,
 ) {
+  const searchApi = useApi(searchApiRef);
   const {
     query,
     link,
@@ -454,9 +448,26 @@ export function SearchResultGroup<FilterOption>(
     ...rest
   } = props;
 
-  const { value } = useSearchResults(query);
+  const { value } = useAsync(
+    () =>
+      searchApi.query({
+        term: query.term ?? '',
+        types: query.types ?? [],
+        filters: query.filters ?? {},
+        pageCursor: query.pageCursor,
+      }),
+    [query],
+  );
 
-  const to = useSearchPagePath(query);
+  const to = `/search?${qs.stringify(
+    {
+      query: query.term,
+      types: query.types,
+      filters: query.filters,
+      pageCursor: query.pageCursor,
+    },
+    { arrayFormat: 'brackets' },
+  )}`;
 
   return (
     <AnalyticsContext
