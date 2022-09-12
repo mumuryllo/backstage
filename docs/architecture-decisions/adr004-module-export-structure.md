@@ -43,11 +43,7 @@ lib/index.ts
 ```
 
 To check whether for example `SubComponentY` is exported from the package, it
-should be possible to traverse the index files towards the root, starting at the
-adjacent one. If there is any index file that doesn't export the previous one,
-the symbol is not publicly exported. For example, if
-`components/ComponentX/index.ts` exports `SubComponentY`, but
-`components/index.ts` does not re-export `./ComponentX`, one should be certain
+should be possible to traverse the index files
 that `SubComponentY` is not exported outside the package. This rule would be
 broken if for example the root `index.ts` re-exports `./components/ComponentX`
 
